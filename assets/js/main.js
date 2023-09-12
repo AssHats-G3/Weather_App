@@ -302,8 +302,21 @@ function nextDaysWeather() {
     });
 }
 
-//  træk data fra getTimeTableForNextDays() ISSUE: 31
+function updateWeatherInfo(dateTime, temperature, windSpeed, compassDirection, beaufortScale) {
+  const weatherinfo = document.getElementById('weatherinfo');
+  const weatherDiv = document.createElement('div');
 
+  weatherDiv.innerHTML = `
+    <p>Date and Time: ${dateTime}</p>
+    <p>Temperature: ${temperature}</p>
+    <p>Wind Speed: ${windSpeed}</p>
+    <p>Wind Direction: ${compassDirection}</p>
+    <p>Wind Speed (Beaufort): ${beaufortScale}</p>
+  `
+  weatherinfo.appendChild(weatherDiv);
+}
+
+//  træk data fra getTimeTableForNextDays() ISSUE: 31
 // Function to get timetable data for the next days
 function getTimeTableForNextDays() {
   const apiKey = '1c8284d2cba51f9f680a3c09e5602ea8';
@@ -332,6 +345,8 @@ function getTimeTableForNextDays() {
           // Use the functions to convert wind direction to compass direction and wind speed to Beaufort scale
           const compassDirection = degreesToCompass(windDirection);
           const beaufortScale = windSpeedToBeaufort(windSpeed);
+
+          updateWeatherInfo(dateTime, temperature, windSpeed, compassDirection, beaufortScale);
 
           // Log or process the extracted data as needed
           console.log('Date and Time:', dateTime);
