@@ -307,7 +307,7 @@ function updateWeatherInfo(dateTime, temperature, windSpeed, compassDirection, b
   const weatherDiv = document.createElement('div');
 
   weatherDiv.innerHTML = `
-    <p>Date and Time: ${dateTime}</p>
+    <p class="date_time__info">Date and Time: ${dateTime}</p>
     <p>Temperature: ${temperature}</p>
     <p>Wind Speed: ${windSpeed}</p>
     <p>Wind Direction: ${compassDirection}</p>
