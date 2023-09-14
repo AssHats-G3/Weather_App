@@ -447,7 +447,7 @@ function getTimeTableForNextDays() {
         updateWind(windSpeed, windDirection);
 
         // Call the function to display the weather icon based on the weather description
-        displayWeatherIcon(firstForecast.weather[0].description);
+        displayWeatherIconORIGINAL(firstForecast.weather[0].description);
 
         // Call the function to display the weather table with the forecast data
         displayWeatherTable(forecastList);
@@ -467,15 +467,18 @@ function updateWind(speed, direction) {
   windElement.textContent = `Wind: ${speed} m/s ${direction}`;
 }
 
-// Function to display weather icon based on weather description issue 44
-function displayWeatherIcon(weatherDescription) {
+// Function to display weather icon based on weather description issue 44__________________________________________________________
+function displayWeatherIconORIGINAL(weatherDescription) {
   const weatherIconElement = document.getElementById('vejrtype'); // Assuming you have an HTML element with the id 'vejrtype'
   const iconImg = document.createElement('img');
 
   let iconSrc;
 
-  // Check the weather description and set the appropriate icon source
-  if (weatherDescription.toLowerCase().includes('clouds')) {
+  // Check if the weather description includes 'rain' in any form
+  if (weatherDescription.toLowerCase().includes('rain')) {
+    // If 'rain' is found, set the icon to 'regn.png'
+    iconSrc = 'assets/img/vejrikoner/regn.png';
+  } else if (weatherDescription.toLowerCase().includes('clouds')) {
     if (weatherDescription.toLowerCase().includes('few clouds') || weatherDescription.toLowerCase().includes('broken clouds')) {
       // For "few clouds" or "broken clouds"
       iconSrc = 'assets/img/vejrikoner/letskyet.png';
@@ -485,8 +488,6 @@ function displayWeatherIcon(weatherDescription) {
     }
   } else if (weatherDescription.toLowerCase() === 'clear') {
     iconSrc = 'assets/img/vejrikoner/sol.png';
-  } else if (weatherDescription.toLowerCase() === 'rain') {
-    iconSrc = 'assets/img/vejrikoner/regn.png';
   } else if (weatherDescription.toLowerCase() === 'snow') {
     iconSrc = 'assets/img/vejrikoner/sne.png';
   } else {
@@ -498,6 +499,8 @@ function displayWeatherIcon(weatherDescription) {
   weatherIconElement.innerHTML = ''; // Clear previous content
   weatherIconElement.appendChild(iconImg); // Add the weather icon to the HTML element
 }
+
+//__________________________________
 
 // Next few days issue #59
 
@@ -549,11 +552,13 @@ function displayWeatherIcon(weatherDescription, weatherIconElement) {
   weatherIconElement.innerHTML = ''; // Clear previous content
   weatherIconElement.appendChild(iconImg); // Add the weather icon to the HTML element
 }
-
-// Function to display weather information for the next seven days one at a time
+//------------------------
+// Function to display weather information for the next seven days one at a time--------------------click on a day and show tableSTART-------------------
 async function displayNextDayWeather(dayIndex) {
   const upcomingDaysDiv = document.getElementById('upcomingDays');
   upcomingDaysDiv.innerHTML = ''; // Clear previous content
+
+  let weatherDescription; // Declare weatherDescription in a higher scope
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(async (position) => {
@@ -568,9 +573,9 @@ async function displayNextDayWeather(dayIndex) {
 
       if (dayIndex >= 0 && dayIndex < 7) {
         const forecast = weatherData.list[dayIndex];
+        weatherDescription = forecast.weather[0].description; // Assign the value here
         const date = new Date(forecast.dt * 1000); // Convert timestamp to date
         const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
-        const weatherDescription = forecast.weather[0].description;
         const temperature = forecast.main.temp.toFixed(1); // Temperature in Celsius
 
         // Create a new element for the day's weather information
@@ -580,12 +585,19 @@ async function displayNextDayWeather(dayIndex) {
         const weatherIconElement = document.createElement('div');
         displayWeatherIcon(weatherDescription, weatherIconElement);
 
-        // Append the day's weather information and icon to the 'upcomingDays' div
-        dayElement.innerHTML = `
-          <p>${dayOfWeek}</p>
-          <p>${weatherDescription}</p>
-          <p>${temperature}°C</p>
-        `;
+        // Add a click event listener to the weather icon
+        weatherIconElement.addEventListener('click', () => {
+          // Call a function to display the weather timetable for that day
+          displayWeatherTimetable(dayIndex, weatherData, weatherDescription);
+        });
+
+        // Marlene har udkommenteret disse, da da skabte en torsdag for meget? -----------------OBS______________
+        //Append the day's weather information and icon to the 'upcomingDays' div 
+        // dayElement.innerHTML = `
+        //   <p>${dayOfWeek}</p>
+        //   <p>${weatherDescription}</p>
+        //   <p>${temperature}°C</p>
+        // `;-----------------------------------------------------OBS slut________________________________________
 
         dayElement.appendChild(weatherIconElement);
 
@@ -596,6 +608,75 @@ async function displayNextDayWeather(dayIndex) {
     console.error('Geolocation is not available in this browser.');
   }
 }
+
+function displayWeatherTimetable(dayIndex, weatherData) {
+  // Get the forecast data for the selected day
+  const forecast = weatherData.list[dayIndex];
+
+  // Create a new element to display the timetable
+  const timetableElement = document.createElement('div');
+
+  // Call the function to populate and display the timetable
+  populateWeatherTimetable(timetableElement, forecast);
+
+  // Clear the 'upcomingDays' div and append the timetable
+  const upcomingDaysDiv = document.getElementById('upcomingDays');
+  upcomingDaysDiv.innerHTML = '';
+  upcomingDaysDiv.appendChild(timetableElement);
+}
+function populateWeatherTimetable(timetableElement, forecast) {
+  // Create the table structure
+  const weatherTable = document.createElement('table');
+  const tableHead = document.createElement('thead');
+  const tableBody = document.createElement('tbody');
+
+  // Create table headers
+  const tableHeaders = ['Time', 'Temperature', 'Wind Speed', 'Weather Description'];
+
+  const headerRow = document.createElement('tr');
+  tableHeaders.forEach((headerText) => {
+    const headerCell = document.createElement('th');
+    headerCell.textContent = headerText;
+    headerRow.appendChild(headerCell);
+  });
+
+  tableHead.appendChild(headerRow);
+  weatherTable.appendChild(tableHead);
+
+  // Populate the table with weather data
+  const forecastList = forecast.list;
+  forecastList.forEach((hourlyForecast) => {
+    const dateTimeParts = hourlyForecast.dt_txt.split(' ')[1].split(':');
+    const hour = ('0' + dateTimeParts[0]).slice(-2);
+    const temperature = Math.round(hourlyForecast.main.temp);
+    const windSpeed = hourlyForecast.wind.speed.toFixed(1);
+    const weatherDescription = hourlyForecast.weather[0].description;
+
+    const row = document.createElement('tr');
+    const timeCell = document.createElement('td');
+    timeCell.textContent = hour;
+    row.appendChild(timeCell);
+
+    const tempCell = document.createElement('td');
+    tempCell.textContent = temperature + '°C';
+    row.appendChild(tempCell);
+
+    const windCell = document.createElement('td');
+    windCell.textContent = windSpeed + ' m/s';
+    row.appendChild(windCell);
+
+    const weatherCell = document.createElement('td');
+    weatherCell.textContent = weatherDescription;
+    row.appendChild(weatherCell);
+
+    tableBody.appendChild(row);
+  });
+
+  weatherTable.appendChild(tableBody);
+  timetableElement.appendChild(weatherTable);
+}
+
+//-----------------------------------------------------------------click on a day and show table sLUT
 
 // Initialize with the first day's weather
 let currentDayIndex = 0;
@@ -617,29 +698,31 @@ function showPreviousDay() {
   }
 }
 
-// Function to display weather icon based on weather description
+// Function to display weather icon based on weather description___________________________________den der fucker op
 function displayWeatherIcon(weatherDescription) {
   let iconSrc;
 
   // Check the weather description and set the appropriate icon source
-  if (weatherDescription.toLowerCase().includes('clouds')) {
-    if (weatherDescription.toLowerCase().includes('few clouds') || weatherDescription.toLowerCase().includes('broken clouds')) {
-      // For "few clouds" or "broken clouds"
-      iconSrc = 'assets/img/vejrikoner/letskyet.png';
-    } else {
-      // For other cloud conditions
-      iconSrc = 'assets/img/vejrikoner/skyet.png';
-    }
-  } else if (weatherDescription.toLowerCase() === 'clear') {
-    iconSrc = 'assets/img/vejrikoner/sol.png';
-  } else if (weatherDescription.toLowerCase() === 'rain') {
-    iconSrc = 'assets/img/vejrikoner/regn.png';
-  } else if (weatherDescription.toLowerCase() === 'snow') {
-    iconSrc = 'assets/img/vejrikoner/sne.png';
+ // Check if the weather description includes 'rain' in any form
+ if (weatherDescription.toLowerCase().includes('rain')) {
+  // If 'rain' is found, set the icon to 'regn.png'
+  iconSrc = 'assets/img/vejrikoner/regn.png';
+} else if (weatherDescription.toLowerCase().includes('clouds')) {
+  if (weatherDescription.toLowerCase().includes('few clouds') || weatherDescription.toLowerCase().includes('broken clouds')) {
+    // For "few clouds" or "broken clouds"
+    iconSrc = 'assets/img/vejrikoner/letskyet.png';
   } else {
-    // If the weather description is unknown, display a default icon
-    iconSrc = 'assets/img/asshat.png';
+    // For other cloud conditions
+    iconSrc = 'assets/img/vejrikoner/skyet.png';
   }
+} else if (weatherDescription.toLowerCase() === 'clear') {
+  iconSrc = 'assets/img/vejrikoner/sol.png';
+} else if (weatherDescription.toLowerCase() === 'snow') {
+  iconSrc = 'assets/img/vejrikoner/sne.png';
+} else {
+  // If the weather description is unknown, display a default icon
+  iconSrc = 'assets/img/asshat.png';
+}
 
   // Return the HTML for the weather icon
   return `<img src="${iconSrc}" alt="Weather Icon">`;
@@ -701,6 +784,9 @@ async function displayUpcomingWeather() {
     console.error('Geolocation is not available in this browser.');
   }
 }
+///_______________testetets
+
+//____________________________
 
 // Call the function to display upcoming weather when the page loads
 displayUpcomingWeather();

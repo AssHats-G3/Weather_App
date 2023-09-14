@@ -8,3 +8,9 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     background-color:#A4C6C9;
 }
+#upcomingDays{
+    background-color: #33313D;
+}
+#dayElement{
+    background-color: aquamarine;
+}
