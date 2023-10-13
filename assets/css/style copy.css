@@ -43,13 +43,12 @@ body::-webkit-scrollbar {
 .container {
     padding: 0 30px;
     max-width: 600px;
-    height: 99vh;
     margin: auto;
     overflow: auto; /* Enable horizontal scrolling if content overflows */
 }
 
 .current-weather-icon {
-    width: 50%;
+    width: 70%
 }
 
 /* nuværende vejrsymbol og temp */
@@ -57,7 +56,7 @@ body::-webkit-scrollbar {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30vh;
+    height: 400px;
     /* Juster højden efter behov */
     position: relative;
 }
@@ -118,11 +117,12 @@ body::-webkit-scrollbar {
 /* næste par */
 
 #upcomingWeather {
-    height: 45vh;
+    height: 550px;
     overflow: auto;
     background-color: #F3F1F0;
     width: 500px;
     border-radius: 8px;
+    margin: auto;
     margin-bottom: 2rem;;
     padding: 3rem;
     font-size: 30px;
@@ -188,7 +188,7 @@ body::-webkit-scrollbar {
 
 #upcomingDaysWeather {
     display: flex;
-    height: 25vh; 
+    height: 300px; 
     overflow: scroll;
     align-items: center;
     overflow-x: auto; /* Enable horizontal scrolling when necessary */
@@ -198,8 +198,9 @@ body::-webkit-scrollbar {
 }
 
 .active-day {
-    background-color: #0000007a;
-    padding: 1rem;
+    background-color: #c9c8c8; /* Use your preferred lighter gray color */
+    border-radius: 8px;
+    border: #fb8332 3px solid;
     
   }
 
@@ -210,7 +211,7 @@ body::-webkit-scrollbar {
 .upcomingDays {
     font-size: 30px;;
     display: flex;
-    height: 30vh;
+    height: 200px;
     width: 180px;
     flex-shrink: 0; /* Prevent cells from shrinking */
     justify-content: center;
@@ -256,15 +257,15 @@ body::-webkit-scrollbar {
 .topInfo {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 2vh;
+    margin-bottom: 20px;
 }
 
 .topLeft {
-    margin-top: 4vh;
+    margin-top: 40px;
 }
 
 .date {
-    font-size: 3vh;
+    font-size: 25px;
     font-weight: bold;
 }
 
@@ -294,7 +295,7 @@ body::-webkit-scrollbar {
 }
 
 .searchBar {
-    height: 3vh;
+    height: 30px;
     width: 100%;
     padding: 2rem;
     border: 0;
